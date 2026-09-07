@@ -1,61 +1,69 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Financial Assistant untuk membantu UMKM memahami kondisi keuangan usaha.">
   <title>AI Financial Assistant — UMKM</title>
-  <meta name="description" content="Prototype asisten keuangan sederhana untuk UMKM.">
-  <style>
-    :root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e6e8ef;--accent:#315efb;--good:#15803d;--bad:#dc2626}
-    *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1080px;margin:auto;padding:28px 18px 60px}.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}h1{margin:6px 0 8px;font-size:clamp(30px,5vw,48px)}.lead{margin:0;color:var(--muted);max-width:680px;line-height:1.6}.badge{background:#eaf0ff;color:var(--accent);padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 6px 24px #1018280a}.full{grid-column:1/-1}h2{font-size:18px;margin:0 0 14px}label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}input,select,button,textarea{width:100%;font:inherit;border-radius:10px;padding:11px 12px;border:1px solid var(--line);background:#fff}button{border:0;background:var(--accent);color:#fff;font-weight:800;cursor:pointer;margin-top:14px}button:hover{filter:brightness(.96)}
-    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{padding:15px;border:1px solid var(--line);border-radius:14px}.metric small{color:var(--muted)}.metric strong{display:block;font-size:22px;margin-top:5px}.good{color:var(--good)}.bad{color:var(--bad)}.insight{padding:13px 14px;border-left:4px solid var(--accent);background:#f8faff;border-radius:10px;margin:9px 0;line-height:1.5}.bar{height:12px;background:#edf0f5;border-radius:99px;overflow:hidden;margin:7px 0 13px}.bar span{display:block;height:100%;background:var(--accent);border-radius:inherit}.empty{color:var(--muted);font-size:14px}.footer{margin-top:22px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:760px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{display:block}.badge{display:inline-block;margin-top:14px}.metrics{grid-template-columns:1fr}}
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="wrap">
-  <header class="hero"><div><div class="eyebrow">AI Financial Assistant untuk UMKM</div><h1>Keuangan usaha, lebih mudah dipahami.</h1><p class="lead">Prototype sederhana untuk menghitung laba/rugi, melihat komposisi pengeluaran, dan mendapatkan insight keuangan dari data yang Anda masukkan.</p></div><div class="badge">Prototype • v0.1</div></header>
-  <section class="grid">
-    <div class="card">
-      <h2>Input keuangan</h2>
-      <label for="revenue">Pendapatan / omzet (Rp)</label><input id="revenue" type="number" min="0" placeholder="10000000">
-      <label for="cost">HPP / biaya barang (Rp)</label><input id="cost" type="number" min="0" placeholder="5000000">
-      <label for="operating">Biaya operasional (Rp)</label><input id="operating" type="number" min="0" placeholder="2000000">
-      <label for="other">Biaya lain-lain (Rp)</label><input id="other" type="number" min="0" placeholder="500000">
-      <button id="analyze">Analisis Keuangan</button>
-    </div>
-    <div class="card">
-      <h2>Hasil analisis</h2>
-      <div class="metrics">
-        <div class="metric"><small>Laba kotor</small><strong id="gross">Rp 0</strong></div>
-        <div class="metric"><small>Laba bersih</small><strong id="net">Rp 0</strong></div>
-        <div class="metric"><small>Margin bersih</small><strong id="margin">0%</strong></div>
+  <div class="app">
+    <header class="header">
+      <div class="header-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm4 12h2V9H7v6zm4 0h2V6h-2v9zm4 0h2v-3h-2v3z"/></svg>
       </div>
-      <div style="margin-top:18px"><strong>Komposisi biaya</strong><div id="breakdown" class="empty" style="margin-top:10px">Masukkan data lalu jalankan analisis.</div></div>
-    </div>
-    <div class="card full"><h2>AI Financial Insight</h2><div id="insights" class="empty">Insight akan muncul setelah analisis.</div></div>
-  </section>
-  <div class="footer">Data diproses di browser pada prototype ini. Belum terhubung ke model AI atau database eksternal.</div>
-</main>
-<script>
-const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
-function val(id){return Math.max(0,Number(document.getElementById(id).value)||0)}
-document.getElementById('analyze').addEventListener('click',()=>{
- const revenue=val('revenue'),cost=val('cost'),operating=val('operating'),other=val('other');
- const gross=revenue-cost,net=gross-operating-other,margin=revenue?net/revenue*100:0,total=cost+operating+other;
- document.getElementById('gross').textContent=rupiah(gross);document.getElementById('net').textContent=rupiah(net);document.getElementById('margin').textContent=margin.toFixed(1)+'%';
- document.getElementById('net').className=net>=0?'good':'bad';document.getElementById('margin').className=margin>=0?'good':'bad';
- const rows=[['HPP / biaya barang',cost],['Operasional',operating],['Lain-lain',other]];
- document.getElementById('breakdown').innerHTML=total?rows.map(([name,n])=>`<div><div style="display:flex;justify-content:space-between;font-size:13px"><span>${name}</span><b>${rupiah(n)}</b></div><div class="bar"><span style="width:${Math.min(100,n/total*100)}%"></span></div></div>`).join(''):'Tidak ada biaya yang dicatat.';
- const tips=[];
- if(!revenue) tips.push('Masukkan omzet agar analisis margin dan profit dapat dihitung.');
- else {if(net<0) tips.push('Usaha sedang mengalami rugi. Prioritaskan identifikasi biaya terbesar dan evaluasi harga jual.'); else if(margin<10) tips.push('Margin bersih masih tipis. Coba tekan biaya yang tidak langsung menghasilkan penjualan.'); else tips.push('Margin bersih cukup positif. Pertahankan kontrol biaya sambil mencari peluang menaikkan omzet.');
- if(revenue&&cost/revenue>0.6) tips.push('HPP menyerap lebih dari 60% omzet. Evaluasi harga pemasok, waste, dan harga jual.');
- if(revenue&&operating/revenue>0.2) tips.push('Biaya operasional relatif tinggi terhadap omzet. Pisahkan biaya tetap dan variabel untuk menemukan ruang efisiensi.');
- }
- document.getElementById('insights').innerHTML=tips.map(t=>`<div class="insight">${t}</div>`).join('');
-});
-</script>
+      <div>
+        <div class="header-title">AI Financial Assistant</div>
+        <div class="header-sub">Asisten keuangan untuk UMKM</div>
+      </div>
+      <div class="header-badge">Prototype v0.2</div>
+      <div class="theme-toggle">
+        <span class="toggle-label" id="themeLabel">Light</span>
+        <button class="toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" aria-pressed="false"></button>
+      </div>
+    </header>
+
+    <main class="chat-area" id="chatArea" aria-live="polite">
+      <div class="msg bot">
+        <div class="msg-avatar">AI</div>
+        <div>
+          <div class="msg-bubble">
+            Halo! Saya bisa membantu membaca kondisi keuangan usaha Anda.<br><br>
+            Coba masukkan data sederhana seperti:<br>
+            <strong>“Omzet 10 juta, HPP 5 juta, operasional 2 juta.”</strong>
+            <div class="section-head"><span class="icon">💡</span> Yang bisa saya bantu</div>
+            <div class="pill-list">
+              <div class="pill insight"><span class="bullet">✓</span><span>Hitung laba kotor, laba bersih, dan margin.</span></div>
+              <div class="pill insight"><span class="bullet">✓</span><span>Melihat komposisi pengeluaran terbesar.</span></div>
+              <div class="pill rec"><span class="bullet">✓</span><span>Memberikan insight dan rekomendasi sederhana.</span></div>
+              <div class="pill rec"><span class="bullet">✓</span><span>Menjelaskan istilah keuangan dengan bahasa mudah.</span></div>
+            </div>
+            <div class="note-box"><strong>Catatan</strong>Hasil saat ini adalah simulasi berbasis aturan dan belum menggunakan model AI eksternal.</div>
+          </div>
+          <div class="msg-time">Sekarang</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="input-area">
+      <div class="quick-prompts">
+        <button class="qp" type="button" data-prompt="Omzet 10 juta, HPP 5 juta, biaya operasional 2 juta">📊 Cek laba saya</button>
+        <button class="qp" type="button" data-prompt="Biaya saya: HPP 5 juta, operasional 2 juta, lain-lain 500 ribu">💸 Cek biaya</button>
+        <button class="qp" type="button" data-prompt="Saya ingin tahu apakah margin usaha saya sehat">💡 Cek margin</button>
+      </div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <textarea id="messageInput" rows="1" placeholder="Ceritakan kondisi keuangan usaha Anda..." aria-label="Pesan ke asisten"></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" type="button" aria-label="Kirim pesan">
+          <svg viewBox="0 0 24 24"><path d="M2 21 23 12 2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+      <div class="disclaimer">Jangan masukkan password, PIN, atau data finansial yang sangat sensitif.</div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
